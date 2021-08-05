@@ -1,0 +1,23 @@
+version: '3.4'
+
+services:
+  eventdb:
+    image: postgres
+
+
+  pgadmin:
+    image: dpage/pgadmin4
+
+  portainer:
+    image: portainer/portainer-ce
+
+  event.api:
+    image: ${DOCKER_REGISTRY-}eventapi
+    build:
+      context: .
+      dockerfile: Event.API/Dockerfile
+
+volumes:
+  portainer_data:
+  postgres_data:
+  pgadmin_data:

@@ -1,0 +1,42 @@
+version: '3.4'
+
+services:
+  eventdb:
+    container_name: eventdb
+    environment:
+      - POSTGRES_USER=admin
+      - POSTGRES_PASSWORD=admin1234
+      - POSTGRES_DB=EventDb
+    restart: always
+    ports:
+        - "5434:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+  pgadmin:
+    container_name: pgadmin
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=admin@aspnetrun.com
+      - PGADMIN_DEFAULT_PASSWORD=admin1234
+    restart: always
+    ports:
+        - "5054:80"
+    volumes:
+      - pgadmin_data:/root/.pgadmin
+
+  portainer:
+    container_name: portainer
+    restart: always
+    ports:
+      - "4004:9000"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - portainer_data:/data
+
+  event.api:
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - "DatabaseSettings:ConnectionString=Server=eventdb;Port=5434;Database=EventDb;User Id=admin;Password=admin1234;"
+    depends_on:
+      - eventdb
+    ports:
+      - "8004:80"
