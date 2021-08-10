@@ -1,23 +1,21 @@
 version: '3.4'
 
 services:
-  eventdb:
-    image: postgres
+  mysql_db2:
+    image: mysql:5.7.22
 
 
-  pgadmin:
-    image: dpage/pgadmin4
-
-  portainer:
-    image: portainer/portainer-ce
+  phpmyadmin2:
+    image: phpmyadmin/phpmyadmin:4.7
 
   event.api:
     image: ${DOCKER_REGISTRY-}eventapi
     build:
       context: .
       dockerfile: Event.API/Dockerfile
-
+networks:
+  events:
+    driver: bridge
 volumes:
-  portainer_data:
-  postgres_data:
-  pgadmin_data:
+  mysql:
+    driver: local

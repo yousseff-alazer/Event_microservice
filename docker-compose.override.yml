@@ -1,42 +1,42 @@
 version: '3.4'
 
 services:
-  eventdb:
-    container_name: eventdb
-    environment:
-      - POSTGRES_USER=admin
-      - POSTGRES_PASSWORD=admin1234
-      - POSTGRES_DB=EventDb
+  mysql_db2:
+    image: mysql:5.7.22
+    container_name: mysql_db2
     restart: always
+    tty: true
     ports:
-        - "5434:5432"
+      - "3307:3306"
     volumes:
-      - postgres_data:/var/lib/postgresql/data/
-  pgadmin:
-    container_name: pgadmin
+      - ./mysql:/var/lib/mysql
     environment:
-      - PGADMIN_DEFAULT_EMAIL=admin@aspnetrun.com
-      - PGADMIN_DEFAULT_PASSWORD=admin1234
-    restart: always
-    ports:
-        - "5054:80"
-    volumes:
-      - pgadmin_data:/root/.pgadmin
+      MYSQL_DATABASE: eventdb
+      MYSQL_USER: pil_events
+      MYSQL_ROOT_PASSWORD: 1a456#idgj_5f@sj*du7fg78@
+      SERVICE_NAME: mysql_db2
+    networks:
+      - events
 
-  portainer:
-    container_name: portainer
+  phpmyadmin2:
+    depends_on:
+      - mysql_db2
+    container_name: phpmyadmin2
     restart: always
+    tty: true
     ports:
-      - "4004:9000"
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-      - portainer_data:/data
+      - "4002:80"
+    environment:
+      PMA_HOST: mysql_db2
+      PMA_PORT: pil_events
+    networks:
+      - events
+
 
   event.api:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-      - "DatabaseSettings:ConnectionString=Server=eventdb;Port=5434;Database=EventDb;User Id=admin;Password=admin1234;"
     depends_on:
-      - eventdb
+      - mysql_db2
     ports:
       - "8004:80"
