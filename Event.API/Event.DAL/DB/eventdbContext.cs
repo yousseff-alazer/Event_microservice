@@ -1,11 +1,12 @@
-﻿using Microsoft.EntityFrameworkCore;
-using System;
+﻿using System;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata;
 
 #nullable disable
 
 namespace Event.API.Event.DAL.DB
 {
-    public class eventdbContext : DbContext
+    public partial class eventdbContext : DbContext
     {
         public eventdbContext()
         {
@@ -28,9 +29,7 @@ namespace Event.API.Event.DAL.DB
             if (!optionsBuilder.IsConfigured)
             {
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
-                optionsBuilder.UseMySql(
-                    "server=localhost;port=3307;database=eventdb;user id=root;password=1a456#idgj_5f@sj*du7fg78@;treattinyasboolean=false",
-                    ServerVersion.Parse("5.7.22-mysql"));
+                optionsBuilder.UseMySql("server=localhost;port=3307;database=eventdb;user id=root;password=1a456#idgj_5f@sj*du7fg78@;treattinyasboolean=false", Microsoft.EntityFrameworkCore.ServerVersion.Parse("5.7.22-mysql"));
             }
         }
 
@@ -293,9 +292,6 @@ namespace Event.API.Event.DAL.DB
             OnModelCreatingPartial(modelBuilder);
         }
 
-        private void OnModelCreatingPartial(ModelBuilder modelBuilder)
-        {
-            throw new NotImplementedException();
-        }
+        partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
     }
 }

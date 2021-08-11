@@ -1,10 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
 
 #nullable disable
 
 namespace Event.API.Event.DAL.DB
 {
-    public class TypeTranslate
+    public partial class TypeTranslate
     {
         public long Id { get; set; }
         public long TypeId { get; set; }

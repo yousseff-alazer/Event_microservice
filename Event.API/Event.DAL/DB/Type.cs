@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace Event.API.Event.DAL.DB
 {
-    public class Type
+    public partial class Type
     {
         public Type()
         {

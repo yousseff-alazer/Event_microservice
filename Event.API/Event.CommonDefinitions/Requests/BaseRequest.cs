@@ -4,7 +4,7 @@ namespace Event.CommonDefinitions.Requests
 {
     public class BaseRequest
     {
-        public const int DefaultPageSize = 30;
+        public int DefaultPageSize = 30;
         public eventdbContext _context;
 
         public bool IsDesc { get; set; }

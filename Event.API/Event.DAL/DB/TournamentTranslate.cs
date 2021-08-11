@@ -1,10 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
 
 #nullable disable
 
 namespace Event.API.Event.DAL.DB
 {
-    public class TournamentTranslate
+    public partial class TournamentTranslate
     {
         public long Id { get; set; }
         public long TournamentId { get; set; }
