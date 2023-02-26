@@ -32,5 +32,6 @@ namespace Event.CommonDefinitions.Records
         public IFormFile FormImage { get; set; }
         public List<TournamentTranslate> Translates { get; internal set; }
         public string TypeName { get; internal set; }
+        public int JoinedUsers { get; set; }
     }
 }

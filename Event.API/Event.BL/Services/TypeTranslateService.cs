@@ -148,7 +148,7 @@ namespace Event.BL.Services
                     foreach (var model in req.TypeTranslateRecords)
                     {
                         var TypeTranslateExist = request._context.TypeTranslates.Any(m =>
-                            m.Name.ToLower() == model.Name.ToLower() && !m.IsDeleted.Value && m.TypeId == model.TypeId&&m.LanguageId==model.LanguageId);
+                            m.Name.ToLower() == model.Name.ToLower() && !m.IsDeleted.Value && m.TypeId == model.TypeId && m.LanguageId == model.LanguageId);
                         if (!TypeTranslateExist)
                         {
                             var typeTranslate =

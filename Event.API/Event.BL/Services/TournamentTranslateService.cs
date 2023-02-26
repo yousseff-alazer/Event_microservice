@@ -69,8 +69,7 @@ namespace Event.BL.Services
                 {
                     var model = request.TournamentTranslateRecord;
                     var tournamentTranslate =
-                        request._context.TournamentTranslates.FirstOrDefault(
-                            c => !c.IsDeleted.Value && c.Id == model.Id);
+                        request._context.TournamentTranslates.FirstOrDefault(c => !c.IsDeleted.Value && c.Id == model.Id);
                     if (tournamentTranslate != null)
                     {
                         //update tournamentTranslate IsDeleted
@@ -107,24 +106,25 @@ namespace Event.BL.Services
             {
                 try
                 {
-                    var model = request.TournamentTranslateRecord;
-                    var tournamentTranslate = request._context.TournamentTranslates.Find(model.Id);
-                    if (tournamentTranslate != null)
+                    foreach (var model in req.TournamentTranslateRecords)
                     {
-                        //update whole tournamentTranslate
-                        tournamentTranslate =
-                            TournamentTranslateServiceManager.AddOrEditTournamentTranslate(request.BaseUrl,
-                                request.TournamentTranslateRecord, tournamentTranslate);
-                        request._context.SaveChanges();
+                        var tournamentTranslate = request._context.TournamentTranslates.Find(model.Id);
+                        if (tournamentTranslate != null)
+                        {
+                            //update whole tournamentTranslate
+                            tournamentTranslate = TournamentTranslateServiceManager.AddOrEditTournamentTranslate(request.BaseUrl,
+                                model, tournamentTranslate);
+                            request._context.SaveChanges();
 
-                        res.Message = HttpStatusCode.OK.ToString();
-                        res.Success = true;
-                        res.StatusCode = HttpStatusCode.OK;
-                    }
-                    else
-                    {
-                        res.Message = "Invalid tournamentTranslate";
-                        res.Success = false;
+                            res.Message = HttpStatusCode.OK.ToString();
+                            res.Success = true;
+                            res.StatusCode = HttpStatusCode.OK;
+                        }
+                        else
+                        {
+                            res.Message = "Invalid tournamentTranslate";
+                            res.Success = false;
+                        }
                     }
                 }
                 catch (Exception ex)
@@ -146,23 +146,26 @@ namespace Event.BL.Services
             {
                 try
                 {
-                    var TournamentTranslateExist = request._context.TournamentTranslates.Any(m =>
-                        m.Name.ToLower() == request.TournamentTranslateRecord.Name.ToLower() && !m.IsDeleted.Value);
-                    if (!TournamentTranslateExist)
+                    foreach (var model in req.TournamentTranslateRecords)
                     {
-                        var tournamentTranslate =
-                            TournamentTranslateServiceManager.AddOrEditTournamentTranslate(request.BaseUrl,
-                                request.TournamentTranslateRecord);
-                        request._context.TournamentTranslates.Add(tournamentTranslate);
-                        request._context.SaveChanges();
-                        res.Message = HttpStatusCode.OK.ToString();
-                        res.Success = true;
-                        res.StatusCode = HttpStatusCode.OK;
-                    }
-                    else
-                    {
-                        res.Message = "TournamentTranslate already exist";
-                        res.Success = false;
+                        var TournamentTranslateExist = request._context.TournamentTranslates.Any(m =>
+                            m.Name.ToLower() == model.Name.ToLower() && !m.IsDeleted.Value && m.TournamentId == model.TournamentId && m.LanguageId == model.LanguageId);
+                        if (!TournamentTranslateExist)
+                        {
+                            var tournamentTranslate =
+                                TournamentTranslateServiceManager.AddOrEditTournamentTranslate(request.BaseUrl,
+                                    model);
+                            request._context.TournamentTranslates.Add(tournamentTranslate);
+                            request._context.SaveChanges();
+                            res.Message = HttpStatusCode.OK.ToString();
+                            res.Success = true;
+                            res.StatusCode = HttpStatusCode.OK;
+                        }
+                        else
+                        {
+                            res.Message = "TournamentTranslate already exist";
+                            res.Success = false;
+                        }
                     }
                 }
                 catch (Exception ex)

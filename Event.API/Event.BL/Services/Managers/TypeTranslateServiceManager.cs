@@ -26,7 +26,7 @@ namespace Event.BL.Services.Managers
 
             if (!string.IsNullOrWhiteSpace(record.Name)) oldTypeTranslate.Name = record.Name;
             if (!string.IsNullOrWhiteSpace(record.LanguageId)) oldTypeTranslate.LanguageId = record.LanguageId;
-            if (record.TypeId>0) oldTypeTranslate.TypeId = record.TypeId;
+            if (record.TypeId > 0) oldTypeTranslate.TypeId = record.TypeId;
             return oldTypeTranslate;
         }
 

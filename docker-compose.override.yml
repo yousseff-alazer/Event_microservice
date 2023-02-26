@@ -7,14 +7,16 @@ services:
     restart: always
     tty: true
     ports:
-      - "3307:3306"
+      - "3309:3309"
     volumes:
       - ./mysql:/var/lib/mysql
+      - ./nginx:/etc/mysql/conf.d
     environment:
       MYSQL_DATABASE: eventdb
       MYSQL_USER: pil_events
       MYSQL_ROOT_PASSWORD: 1a456#idgj_5f@sj*du7fg78@
       SERVICE_NAME: mysql_db2
+      MYSQL_TCP_PORT: 3309
     networks:
       - events
 
@@ -25,10 +27,10 @@ services:
     restart: always
     tty: true
     ports:
-      - "4002:80"
+      - "4008:80"
     environment:
       PMA_HOST: mysql_db2
-      PMA_PORT: pil_events
+      PMA_PORT: 3309
     networks:
       - events
 
@@ -36,7 +38,12 @@ services:
   event.api:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
+      - "DatabaseSettings:ConnectionString=server=mysql_db2;port=3309;database=eventdb;user id=root;password=1a456#idgj_5f@sj*du7fg78@;sslmode=none;treattinyasboolean=false;"
     depends_on:
       - mysql_db2
     ports:
       - "8004:80"
+    networks:
+      - events
+    volumes:
+      - ./src/Event.API/wwwroot:/app/wwwroot

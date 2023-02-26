@@ -29,18 +29,22 @@ namespace Event.API.Event.DAL.DB
             if (!optionsBuilder.IsConfigured)
             {
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
-                optionsBuilder.UseMySql("server=localhost;port=3307;database=eventdb;user id=root;password=1a456#idgj_5f@sj*du7fg78@;treattinyasboolean=false", Microsoft.EntityFrameworkCore.ServerVersion.Parse("5.7.22-mysql"));
+                optionsBuilder.UseMySql("server=localhost;port=3309;database=eventdb;user id=root;password=1a456#idgj_5f@sj*du7fg78@;sslmode=none;treattinyasboolean=false", Microsoft.EntityFrameworkCore.ServerVersion.Parse("5.7.22-mysql"));
+                optionsBuilder.EnableSensitiveDataLogging();
             }
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.HasCharSet("utf8")
-                .UseCollation("utf8_general_ci");
+            modelBuilder.HasCharSet("latin1")
+                .UseCollation("latin1_swedish_ci");
 
             modelBuilder.Entity<Tournament>(entity =>
             {
                 entity.ToTable("tournament");
+
+                entity.HasCharSet("utf8")
+                    .UseCollation("utf8_general_ci");
 
                 entity.HasIndex(e => e.TypeId, "Fk_Tournament_Type_idx");
 
@@ -80,7 +84,9 @@ namespace Event.API.Event.DAL.DB
 
                 entity.Property(e => e.ObjectId).HasMaxLength(150);
 
-                entity.Property(e => e.ObjectTypeId).HasMaxLength(150);
+                entity.Property(e => e.ObjectTypeId)
+                    .HasMaxLength(150)
+                    .HasDefaultValueSql("'611a2b54519ef10012345625'");
 
                 entity.Property(e => e.PriceId).HasMaxLength(150);
 
@@ -103,6 +109,9 @@ namespace Event.API.Event.DAL.DB
             modelBuilder.Entity<TournamentTranslate>(entity =>
             {
                 entity.ToTable("tournament_translate");
+
+                entity.HasCharSet("utf8")
+                    .UseCollation("utf8_general_ci");
 
                 entity.HasIndex(e => e.TournamentId, "Fk_tournament_translate_idx");
 
@@ -149,6 +158,9 @@ namespace Event.API.Event.DAL.DB
             {
                 entity.ToTable("tournament_user");
 
+                entity.HasCharSet("utf8")
+                    .UseCollation("utf8_general_ci");
+
                 entity.HasIndex(e => e.TournamentId, "Fk_user_Tournament_idx");
 
                 entity.Property(e => e.Id)
@@ -183,6 +195,9 @@ namespace Event.API.Event.DAL.DB
             {
                 entity.ToTable("type");
 
+                entity.HasCharSet("utf8")
+                    .UseCollation("utf8_general_ci");
+
                 entity.Property(e => e.Id)
                     .HasColumnType("bigint(20)")
                     .HasColumnName("ID");
@@ -209,6 +224,9 @@ namespace Event.API.Event.DAL.DB
             modelBuilder.Entity<TypeTranslate>(entity =>
             {
                 entity.ToTable("type_translate");
+
+                entity.HasCharSet("utf8")
+                    .UseCollation("utf8_general_ci");
 
                 entity.HasIndex(e => e.TypeId, "FK_Type_Translate_idx");
 
@@ -251,6 +269,9 @@ namespace Event.API.Event.DAL.DB
             {
                 entity.ToTable("winning");
 
+                entity.HasCharSet("utf8")
+                    .UseCollation("utf8_general_ci");
+
                 entity.HasIndex(e => e.TournamentId, "Fk_Winning_Tournament_idx");
 
                 entity.Property(e => e.Id)
@@ -260,6 +281,8 @@ namespace Event.API.Event.DAL.DB
                 entity.Property(e => e.Amount)
                     .IsRequired()
                     .HasMaxLength(150);
+
+                entity.Property(e => e.ConstantType).HasMaxLength(150);
 
                 entity.Property(e => e.CreatedBy).HasColumnType("bigint(20)");
 
@@ -278,8 +301,6 @@ namespace Event.API.Event.DAL.DB
                 entity.Property(e => e.Order)
                     .HasColumnType("bigint(20)")
                     .HasColumnName("order");
-
-                entity.Property(e => e.PriceTypeId).HasMaxLength(150);
 
                 entity.Property(e => e.TournamentId).HasColumnType("bigint(20)");
 

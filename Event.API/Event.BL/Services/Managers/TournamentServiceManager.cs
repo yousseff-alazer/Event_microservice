@@ -10,14 +10,19 @@ namespace Event.BL.Services.Managers
     {
         private const string TournamentPath = "{0}/ContentFiles/Tournament/{1}";
 
+        private const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+
         public static Tournament AddOrEditTournament(string baseUrl /*, long createdBy*/, TournamentRecord record,
             Tournament oldTournament = null)
         {
             if (oldTournament == null) //new tournament
             {
-                oldTournament = new Tournament();
-                oldTournament.CreationDate = DateTime.Now;
-                oldTournament.CreatedBy = record.CreatedBy;
+                oldTournament = new Tournament
+                {
+                    CreationDate = DateTime.Now,
+                    CreatedBy = record.CreatedBy,
+                    Code = GetCodeResult()
+                };
             }
             else
             {
@@ -28,9 +33,24 @@ namespace Event.BL.Services.Managers
             if (!string.IsNullOrWhiteSpace(record.Name)) oldTournament.Name = record.Name;
             if (!string.IsNullOrWhiteSpace(record.Description)) oldTournament.Description = record.Description;
 
-            if (record.ObjectId != null) oldTournament.ObjectId = record.ObjectId;
-            if (record.ObjectTypeId != null) oldTournament.ObjectTypeId = record.ObjectTypeId;
-            if (record.ActionTypeId != null) oldTournament.ActionTypeId = record.ActionTypeId;
+            if (!string.IsNullOrWhiteSpace(record.ObjectId)) oldTournament.ObjectId = record.ObjectId;
+            if (!string.IsNullOrWhiteSpace(record.ObjectTypeId)) oldTournament.ObjectTypeId = record.ObjectTypeId;
+            if (!string.IsNullOrWhiteSpace(record.ActionTypeId)) oldTournament.ActionTypeId = record.ActionTypeId;
+
+            if (record.EndDate != null) oldTournament.EndDate = record.EndDate;
+            if (record.StartDate != null) oldTournament.StartDate = record.StartDate;
+            if (record.NumberOfParticipants != null && record.NumberOfParticipants > 0) oldTournament.NumberOfParticipants = record.NumberOfParticipants;
+            if (!string.IsNullOrWhiteSpace(record.UserHostId))
+            {
+                oldTournament.UserHostId = record.UserHostId;
+            }
+            if (record.Public != null) oldTournament.Public = record.Public;
+            if (!string.IsNullOrWhiteSpace(record.LeaderBoardId)) oldTournament.LeaderBoardId = record.LeaderBoardId;
+
+            if (!string.IsNullOrWhiteSpace(record.PriceId)) oldTournament.PriceId = record.PriceId;
+            if (record.TypeId != null) oldTournament.TypeId = record.TypeId;
+
+
             //    Imageurl = c.Imageurl
             //upload
             if (record.FormImage != null)
@@ -43,16 +63,18 @@ namespace Event.BL.Services.Managers
                     var fileName = record.FormImage.FileName;
                     if (file.Length > 0)
                     {
-                        var newFileName = Guid.NewGuid() + "-" + fileName;
-                        var physicalPath = string.Format(TournamentPath, Directory.GetCurrentDirectory() + "/wwwroot",
-                            newFileName);
+                        var newFileName = Guid.NewGuid().ToString() + "-" + fileName;
+                        var physicalPath = string.Format(TournamentPath, Directory.GetCurrentDirectory() + "/wwwroot", newFileName);
+                        string dirPath = Path.GetDirectoryName(physicalPath);
+
+                        if (!Directory.Exists(dirPath))
+                            Directory.CreateDirectory(dirPath);
                         var virtualPath = string.Format(TournamentPath, baseUrl, newFileName);
 
                         using (var stream = new FileStream(physicalPath, FileMode.Create))
                         {
                             file.CopyTo(stream);
                         }
-
                         oldTournament.ImageUrl = virtualPath;
                     }
                 }
@@ -76,6 +98,16 @@ namespace Event.BL.Services.Managers
                     c.ObjectTypeId != null && c.ObjectTypeId.Trim().Contains(tournamentRecord.ObjectTypeId.Trim()));
 
             return query;
+        }
+
+        private static string GetCodeResult()
+        {
+            var random = new Random();
+            var result = new string(
+                Enumerable.Repeat(chars, 10)
+                    .Select(s => s[random.Next(s.Length)])
+                    .ToArray());
+            return result;
         }
     }
 }

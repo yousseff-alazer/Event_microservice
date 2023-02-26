@@ -1,5 +1,5 @@
-﻿using System.Collections.Generic;
-using Event.CommonDefinitions.Records;
+﻿using Event.CommonDefinitions.Records;
+using System.Collections.Generic;
 
 namespace Event.CommonDefinitions.Requests
 {

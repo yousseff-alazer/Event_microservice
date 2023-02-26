@@ -13,6 +13,7 @@ namespace Event.CommonDefinitions.Records
         public string Amount { get; set; }
         public long? Order { get; set; }
         public long? TournamentId { get; set; }
-        public string PriceTypeId { get; set; }
+        public string ConstantType { get; set; }
+
     }
 }

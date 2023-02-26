@@ -1,20 +1,20 @@
-﻿using System;
-using Event.API.Event.DAL.DB;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using Event.API.Event.DAL.DB;
 using Event.BL.Services;
 using Event.CommonDefinitions.Records;
 using Event.CommonDefinitions.Requests;
 using Event.CommonDefinitions.Responses;
 using Event.Helpers;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using Type = Event.API.Event.DAL.DB.Type;
 
 namespace Event.API.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/event/[controller]")]
     [ApiController]
     public class TournamentTypesController : ControllerBase
     {
@@ -85,7 +85,7 @@ namespace Event.API.Controllers
         }
 
         /// <summary>
-        /// Return List Of Types With filter valid and any  needed filter like id,name,...  .
+        /// Return List Of Types With filter valid and any  needed filter like id,...  .
         /// </summary>
         [HttpPost]
         [Route("GetFiltered")]
@@ -114,7 +114,7 @@ namespace Event.API.Controllers
         }
 
         /// <summary>
-        /// Creates Type, Uncheck Send empty value in Id,Creationdate,Isdeleted,IsDesc,PageSize,PageIndex.
+        /// Creates Type.
         /// </summary>
         [HttpPost]
         [Route("Add")]
@@ -146,7 +146,7 @@ namespace Event.API.Controllers
         }
 
         /// <summary>
-        /// Update Type , Uncheck Send empty value in Id,Creationdate,Isdeleted,IsDesc,PageSize,PageIndex.
+        /// Update Type .
         /// </summary>
         [HttpPost]
         [Route("Edit")]
@@ -236,7 +236,7 @@ namespace Event.API.Controllers
         }
 
         /// <summary>
-        /// Creates TypeTranslate, Uncheck Send empty value in Id,Creationdate,Isdeleted,IsDesc,PageSize,PageIndex.
+        /// Creates TypeTranslate.
         /// </summary>
         [HttpPost]
         [Route("AddTypeTranslate")]
@@ -253,22 +253,53 @@ namespace Event.API.Controllers
                     return Ok(typeTranslateResponse);
                 }
 
-                    var editedTranslateType = model.TypeTranslateRecords.Where(c => c.Id > 0).ToList();
-                    var editReq = new TypeTranslateRequest
-                    {
-                        _context = _context,
-                        BaseUrl = Request.Scheme + "://" + Request.Host.Value + Request.PathBase,
-                        TypeTranslateRecords = editedTranslateType
-                    };
-                    typeTranslateResponse = TypeTranslateService.EditTypeTranslate(editReq);
-                    var addedTranslateType = model.TypeTranslateRecords.Where(c => c.Id == 0).ToList();
-                    var addReq = new TypeTranslateRequest
-                    {
-                        _context = _context,
-                        BaseUrl = Request.Scheme + "://" + Request.Host.Value + Request.PathBase,
-                        TypeTranslateRecords = addedTranslateType
-                    };
-                    typeTranslateResponse = TypeTranslateService.AddTypeTranslate(addReq);
+                var editedTranslateType = model.TypeTranslateRecords.Where(c => c.Id > 0).ToList();
+                var editReq = new TypeTranslateRequest
+                {
+                    _context = _context,
+                    BaseUrl = Request.Scheme + "://" + Request.Host.Value + Request.PathBase,
+                    TypeTranslateRecords = editedTranslateType
+                };
+                typeTranslateResponse = TypeTranslateService.EditTypeTranslate(editReq);
+                var addedTranslateType = model.TypeTranslateRecords.Where(c => c.Id == 0).ToList();
+                var addReq = new TypeTranslateRequest
+                {
+                    _context = _context,
+                    BaseUrl = Request.Scheme + "://" + Request.Host.Value + Request.PathBase,
+                    TypeTranslateRecords = addedTranslateType
+                };
+                typeTranslateResponse = TypeTranslateService.AddTypeTranslate(addReq);
+            }
+            catch (Exception ex)
+            {
+                typeTranslateResponse.Message = ex.Message;
+                typeTranslateResponse.Success = false;
+                LogHelper.LogException(ex.Message, ex.StackTrace);
+            }
+
+            return Ok(typeTranslateResponse);
+        }
+
+        /// <summary>
+        /// Remove TypeTranslate .
+        /// </summary>
+        [HttpPost]
+        [Route("DeleteTypeTranslate")]
+        [Produces("application/json")]
+        public IActionResult DeleteTypeTranslate([FromBody] TypeTranslateRequest model)
+        {
+            var typeTranslateResponse = new TypeTranslateResponse();
+            try
+            {
+                if (model == null)
+                {
+                    typeTranslateResponse.Message = "Empty Body";
+                    typeTranslateResponse.Success = false;
+                    return Ok(typeTranslateResponse);
+                }
+                model._context = _context;
+                model.BaseUrl = Request.Scheme + "://" + Request.Host.Value + Request.PathBase;
+                typeTranslateResponse = TypeTranslateService.DeleteTypeTranslate(model);
             }
             catch (Exception ex)
             {
@@ -293,5 +324,7 @@ namespace Event.API.Controllers
         //                  .ToArray());
         //    return Ok(result);
         //}
+
+
     }
 }

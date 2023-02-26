@@ -14,6 +14,8 @@ namespace Event.API
 {
     public class Startup
     {
+        readonly string MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
+
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
@@ -24,6 +26,15 @@ namespace Event.API
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            //services.AddCors(o => o.AddPolicy(MyAllowSpecificOrigins,
+            //          builder =>
+            //          {
+            //              builder.WithOrigins("https://localhost:4200", "http://127.0.0.1:4200", "http://localhost:4200")
+            //          .AllowAnyMethod()
+            //           .AllowAnyHeader()
+            //           .AllowCredentials();
+            //          }));
+            services.AddCors();
             var dbConnectionString = Configuration.GetValue<string>("DatabaseSettings:ConnectionString");
             services.AddDbContext<eventdbContext>(opt =>
                 opt.UseMySql(dbConnectionString, ServerVersion.AutoDetect(dbConnectionString)));
@@ -47,11 +58,22 @@ namespace Event.API
                 app.UseSwagger();
                 app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Event.API v1"));
             }
-
-            app.UseRouting();
+            app.UseDefaultFiles();
             app.UseStaticFiles(); // For the wwwroot folder
-            app.UseAuthorization();
+            app.UseRouting();
+            app.UseCors(x => x
+                .AllowAnyMethod()
+                .AllowAnyHeader()
+                .SetIsOriginAllowed(origin => true) // allow any origin
+                .AllowCredentials()); // allow credentials
 
+            //app.UseCors(MyAllowSpecificOrigins);
+            app.UseAuthorization();
+            //app.UseCors(builder => builder
+            //    .WithOrigins("http://192.168.1.1:4200", "http://127.0.0.1:4200", "http://localhost:4200")
+            //    .AllowAnyMethod()
+            //    .AllowAnyHeader()
+            //    .AllowCredentials());
             app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
         }
     }

@@ -28,7 +28,7 @@ namespace Event.BL.Services
                         ModificationDate = c.ModificationDate,
                         Order = c.Order,
                         Amount = c.Amount,
-                        PriceTypeId = c.PriceTypeId,
+                        ConstantType = c.ConstantType,
                         TournamentId = c.TournamentId
                     });
 
@@ -103,23 +103,25 @@ namespace Event.BL.Services
             {
                 try
                 {
-                    var model = request.WinningRecord;
-                    var winning = request._context.Winnings.Find(model.Id);
-                    if (winning != null)
+                    foreach (var model in req.WinningRecords)
                     {
-                        //update whole winning
-                        winning = WinningServiceManager.AddOrEditWinning(request.BaseUrl, request.WinningRecord,
-                            winning);
-                        request._context.SaveChanges();
+                        var winning = request._context.Winnings.Find(model.Id);
+                        if (winning != null)
+                        {
+                            //update whole winning
+                            winning = WinningServiceManager.AddOrEditWinning(request.BaseUrl,
+                                model, winning);
+                            request._context.SaveChanges();
 
-                        res.Message = HttpStatusCode.OK.ToString();
-                        res.Success = true;
-                        res.StatusCode = HttpStatusCode.OK;
-                    }
-                    else
-                    {
-                        res.Message = "Invalid winning";
-                        res.Success = false;
+                            res.Message = HttpStatusCode.OK.ToString();
+                            res.Success = true;
+                            res.StatusCode = HttpStatusCode.OK;
+                        }
+                        else
+                        {
+                            res.Message = "Invalid winning";
+                            res.Success = false;
+                        }
                     }
                 }
                 catch (Exception ex)
@@ -134,38 +136,46 @@ namespace Event.BL.Services
             return res;
         }
 
-        //public static WinningResponse AddWinning(WinningRequest request)
-        //{
-        //    var res = new WinningResponse();
-        //    RunBase(request, res, (WinningRequest req) =>
-        //    {
-        //        try
-        //        {
-        //            var WinningExist = request._context.Winnings.Any(m => m.Order.ToLower() == request.WinningRecord.Name.ToLower() && !m.IsDeleted.Value);
-        //            if (!WinningExist)
-        //            {
-        //                var winning = WinningServiceManager.AddOrEditWinning(request.BaseUrl, request.WinningRecord);
-        //                request._context.Winnings.Add(winning);
-        //                request._context.SaveChanges();
-        //                res.Message = HttpStatusCode.OK.ToString();
-        //                res.Success = true;
-        //                res.StatusCode = HttpStatusCode.OK;
-        //            }
-        //            else
-        //            {
-        //                res.Message = "Winning already exist";
-        //                res.Success = false;
-        //            }
-        //        }
-        //        catch (Exception ex)
-        //        {
-        //            res.Message = ex.Message;
-        //            res.Success = false;
-        //            LogHelper.LogException(ex.Message, ex.StackTrace);
-        //        }
-        //        return res;
-        //    });
-        //    return res;
-        //}
+        public static WinningResponse AddWinning(WinningRequest request)
+        {
+            var res = new WinningResponse();
+            RunBase(request, res, req =>
+            {
+                try
+                {
+                    foreach (var model in req.WinningRecords)
+                    {
+                        var WinningExist = request._context.Winnings.Any(m =>
+                            m.Amount.ToLower() == model.Amount.ToLower() && !m.IsDeleted.Value && m.TournamentId == model.TournamentId 
+                            && m.Order == model.Order&&m.ConstantType==model.ConstantType);
+                        if (!WinningExist)
+                        {
+                            var winning =
+                                WinningServiceManager.AddOrEditWinning(request.BaseUrl,
+                                    model);
+                            request._context.Winnings.Add(winning);
+                            request._context.SaveChanges();
+                            res.Message = HttpStatusCode.OK.ToString();
+                            res.Success = true;
+                            res.StatusCode = HttpStatusCode.OK;
+                        }
+                        else
+                        {
+                            res.Message = "Winning already exist";
+                            res.Success = false;
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    res.Message = ex.Message;
+                    res.Success = false;
+                    LogHelper.LogException(ex.Message, ex.StackTrace);
+                }
+
+                return res;
+            });
+            return res;
+        }
     }
 }

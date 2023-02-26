@@ -6,6 +6,8 @@ using Event.Helpers;
 using System;
 using System.Linq;
 using System.Net;
+using Event.API.Event.DAL.DB;
+using Newtonsoft.Json;
 
 namespace Event.BL.Services
 {
@@ -46,7 +48,8 @@ namespace Event.BL.Services
                             Translates = !string.IsNullOrWhiteSpace(request.LanguageId) &&
                                          c.TournamentTranslates != null
                                 ? c.TournamentTranslates.Where(t => t.LanguageId == request.LanguageId).ToList()
-                                : null
+                                : null,
+                            JoinedUsers = c.TournamentUsers.Count(t=> t.UserId != null&&t.TournamentId!=null&&t.TournamentId.Value==c.Id&&!t.IsDeleted.Value)
                         });
 
                     if (request.TournamentRecord != null)
@@ -167,6 +170,19 @@ namespace Event.BL.Services
                             TournamentServiceManager.AddOrEditTournament(request.BaseUrl, request.TournamentRecord);
                         request._context.Tournaments.Add(tournament);
                         request._context.SaveChanges();
+                        if (!string.IsNullOrWhiteSpace(request.TournamentRecord.UserHostId))
+                        {
+                            var tournamentUser = new TournamentUser
+                            {
+                                CreationDate = DateTime.Now,
+                                CreatedBy = request.TournamentRecord.CreatedBy,
+                                UserId = request.TournamentRecord.UserHostId,
+                                TournamentId = tournament.Id
+                            };
+                            request._context.TournamentUsers.Add(tournamentUser);
+                            request._context.SaveChanges();
+                        }
+
                         res.Message = HttpStatusCode.OK.ToString();
                         res.Success = true;
                         res.StatusCode = HttpStatusCode.OK;
@@ -179,7 +195,7 @@ namespace Event.BL.Services
                 }
                 catch (Exception ex)
                 {
-                    res.Message = ex.Message;
+                    res.Message = JsonConvert.SerializeObject(request.TournamentRecord) + " message : " +  ex.Message + ex.StackTrace ;
                     res.Success = false;
                     LogHelper.LogException(ex.Message, ex.StackTrace);
                 }

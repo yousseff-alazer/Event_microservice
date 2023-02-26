@@ -25,7 +25,6 @@ namespace Event.BL.Services.Managers
 
             if (!string.IsNullOrWhiteSpace(record.Name)) oldType.Name = record.Name;
 
-
             return oldType;
         }
 
